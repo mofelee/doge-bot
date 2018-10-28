@@ -27,10 +27,19 @@ bot.on('logout', function(user) {
 });
 
 bot.on('message', async function(msg) {
-  delete require.cache[path.resolve(__dirname, './message.js')];
+  let handlerPath = path.resolve(__dirname, '../bot-handlers');
+
+  if (!fs.existsSync(path)) {
+    handlerPath = __dirname;
+  }
+
+  const messageHandler = path.resolve(handlerPath, './message.js');
+  if(!process.env.DISABLE_AUTO_LOAD){
+    delete require.cache[messageHandler];
+  }
 
   try {
-    const fn = require('./message');
+    const fn = require(messageHandler);
     await fn(msg, {
       bot,
     });
