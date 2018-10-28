@@ -1,6 +1,14 @@
 const qrTerm = require('qrcode-terminal');
 const {FileBox} = require('file-box');
+const util = require('util');
+const fs = require('fs');
+const path = require('path');
+const signale = require('signale');
+
+const readFile = util.promisify(fs.readFile);
 const _ = require('lodash');
+
+const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
 
 const {Wechaty, Room, Message} = require('wechaty');
 
@@ -11,54 +19,23 @@ bot.on('scan', function(qrcode, status) {
 });
 
 bot.on('login', function(user) {
-  console.log(`${user} login`);
+  signale.info(`${user} login`);
 });
 
 bot.on('logout', function(user) {
-  console.log(`${user} logout`);
+  signale.info(`${user} logout`);
 });
 
 bot.on('message', async function(msg) {
-  const contact = msg.from();
-  const text = msg.text();
-  const room = msg.room();
-  const type = msg.type();
+  delete require.cache[path.resolve(__dirname, './message.js')];
 
-  if (msg.self()) {
-    return;
-  }
-
-  if (room) {
-    const topic = await room.topic();
-    console.log(`Room: ${topic} Contact: ${contact.name()} Text: ${text}`);
-  } else {
-    console.log(`Contact: ${contact.name()} Text: ${text}`);
-  }
-
-  if (type !== Message.Type.Text) {
-    const file = await msg.toFileBox();
-    const name = file.name;
-    const filepath = './files/' + name;
-    console.log('Save file to: ' + filepath);
-    file.toFile(filepath);
-
-    return;
-    //return msg.say(`图片狗蛋已经保存下来啦! ${name}`, contact);
-  }
-
-  if (/狗蛋还活着不/i.test(text)) {
-    return msg.say('狗蛋还活的好好的', contact);
-  }
-
-  if (/喝酒$/i.test(text)) {
-    const members = await room.memberList();
-    const name = members[_.random(0, members.length - 1)].name();
-
-    return msg.say(`狗蛋不想喝酒，狗蛋请${name}喝酒`, contact);
-  }
-
-  if (/^溜瓜皮$/i.test(text)) {
-    return msg.say('咻~', contact);
+  try {
+    const fn = require('./message');
+    await fn(msg, {
+      bot,
+    });
+  } catch (e) {
+    signale.fatal(e);
   }
 });
 
