@@ -1,0 +1,16 @@
+{
+  "name": "doge-bot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Mofe Lee <mofe@me.com>",
+  "license": "MIT",
+  "dependencies": {
+    "file-box": "^0.8.24",
+    "lodash": "^4.17.11",
+    "qrcode-terminal": "^0.12.0",
+    "wechaty": "^0.22.4"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
