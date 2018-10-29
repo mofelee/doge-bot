@@ -1,51 +1,44 @@
-const qrTerm = require('qrcode-terminal');
-const {FileBox} = require('file-box');
-const util = require('util');
-const fs = require('fs');
-const path = require('path');
-const signale = require('signale');
+const qrTerm = require('qrcode-terminal')
+const fs = require('fs')
+const path = require('path')
+const signale = require('signale')
 
-const readFile = util.promisify(fs.readFile);
-const _ = require('lodash');
+const { Wechaty } = require('wechaty')
 
-const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
+const bot = new Wechaty()
 
-const {Wechaty, Room, Message} = require('wechaty');
-
-const bot = new Wechaty();
-
-bot.on('scan', function(qrcode, status) {
-  qrTerm.generate(qrcode, {small: true});
-});
+bot.on('scan', function(qrcode, status) { // eslint-disable-line
+  qrTerm.generate(qrcode, { small: true })
+})
 
 bot.on('login', function(user) {
-  signale.info(`${user} login`);
-});
+  signale.info(`${user} login`)
+})
 
 bot.on('logout', function(user) {
-  signale.info(`${user} logout`);
-});
+  signale.info(`${user} logout`)
+})
 
 bot.on('message', async function(msg) {
-  let handlerPath = path.resolve(__dirname, '../bot-handlers');
+  let handlerPath = path.resolve(__dirname, '../bot-handlers')
 
   if (!fs.existsSync(path)) {
-    handlerPath = __dirname;
+    handlerPath = __dirname
   }
 
-  const messageHandler = path.resolve(handlerPath, './message.js');
-  if(!process.env.DISABLE_AUTO_LOAD){
-    delete require.cache[messageHandler];
+  const messageHandler = path.resolve(handlerPath, './message.js')
+  if (!process.env.DISABLE_AUTO_LOAD) {
+    delete require.cache[messageHandler]
   }
 
   try {
-    const fn = require(messageHandler);
+    const fn = require(messageHandler)
     await fn(msg, {
-      bot,
-    });
+      bot
+    })
   } catch (e) {
-    signale.fatal(e);
+    signale.fatal(e)
   }
-});
+})
 
-bot.start().catch(console.error);
+bot.start().catch(signale.fatal)
