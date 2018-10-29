@@ -38,8 +38,7 @@ bot.on('friendship', async function(friendship) {
     signale.warn(`${dateInfo}: 收到未知 friendship event`)
   }
 
-  const handlerPath = getHandlerPath()
-  const friendshipHandler = path.resolve(handlerPath, './friendship.js')
+  const friendshipHandler = getHandlerFile('./friendship.js')
 
   if (!DISABLE_AUTO_RELOAD) {
     delete require.cache[friendshipHandler]
@@ -57,9 +56,13 @@ bot.on('friendship', async function(friendship) {
 
 bot.on('message', async function(msg) {
   await printMsg(msg)
+  let messageHandler
 
-  const handlerPath = getHandlerPath()
-  const messageHandler = path.resolve(handlerPath, './message.js')
+  if(msg.type() === Message.Type.Text){
+    messageHandler = getHandlerFile('./message.js')
+  } else {
+    messageHandler = getHandlerFile('./fileMessage.js')
+  }
 
   if (!DISABLE_AUTO_RELOAD) {
     delete require.cache[messageHandler]
@@ -82,14 +85,17 @@ bot.start().catch(signale.fatal)
 /**
  * 获取handler的路径
  */
-function getHandlerPath() {
-  let handlerPath = path.resolve(__dirname, './bot-handlers')
+function getHandlerFile(handlerName) {
+  const botFolder = path.resolve(__dirname, './bot-handlers')
+  const handlerFile = path.resolve(botFolder, handlerName)
 
-  if (!fs.existsSync(handlerPath)) {
-    handlerPath = __dirname
+  const defaultHandlerFile = path.resolve(__dirname, handlerName)
+
+  if(fs.existsSync(botFolder) && fs.existsSync(handlerFile)){
+    return handlerFile
+  } else {
+    return defaultHandlerFile
   }
-
-  return handlerPath
 }
 
 /**
