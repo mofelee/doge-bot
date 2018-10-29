@@ -4,7 +4,7 @@ const path = require('path')
 const signale = require('signale')
 const { format } = require('date-fns')
 
-const { Wechaty, Message } = require('wechaty')
+const { Wechaty, Message, Friendship } = require('wechaty')
 
 const bot = new Wechaty()
 
@@ -22,6 +22,37 @@ bot.on('login', function(user) {
 
 bot.on('logout', function(user) {
   signale.info(`${user} logout`)
+})
+
+bot.on('friendship', async function(friendship) {
+  const contact = friendship.contact()
+  const type = friendship.type()
+  const name = contact.name()
+  const dateInfo = format(new Date(), 'YYYY-MM-DD hh:mm:ss')
+
+  if (type === Friendship.Type.Receive) {
+    signale.info(`${dateInfo}: 收到 ${name} 的好友请求`)
+  } else if (type === Friendship.Type.Confirm) {
+    signale.info(`${dateInfo}: ${name} 已确认添加您为好友`)
+  } else {
+    signale.warn(`${dateInfo}: 收到未知 friendship event`)
+  }
+
+  const handlerPath = getHandlerPath()
+  const friendshipHandler = path.resolve(handlerPath, './friendship.js')
+
+  if (!DISABLE_AUTO_RELOAD) {
+    delete require.cache[friendshipHandler]
+  }
+
+  try {
+    const fn = require(friendshipHandler)
+    await fn(friendship, {
+      bot
+    })
+  } catch (e) {
+    signale.fatal(e)
+  }
 })
 
 bot.on('message', async function(msg) {
