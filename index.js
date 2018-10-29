@@ -72,7 +72,8 @@ bot.on('message', async function(msg) {
   try {
     const fn = require(messageHandler)
     await fn(msg, {
-      bot
+      bot,
+      tulingBot
     })
   } catch (e) {
     signale.fatal(e)
