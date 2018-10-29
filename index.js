@@ -5,6 +5,7 @@ const signale = require('signale')
 const { format } = require('date-fns')
 
 const { Wechaty, Message, Friendship } = require('wechaty')
+const tulingBot = require('./tulingBot')
 
 const bot = new Wechaty()
 
