@@ -5,6 +5,7 @@
   "author": "Mofe Lee <mofe@me.com>",
   "license": "MIT",
   "dependencies": {
+    "date-fns": "^1.29.0",
     "file-box": "^0.8.24",
     "lodash": "^4.17.11",
     "qrcode-terminal": "^0.12.0",
