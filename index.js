@@ -14,6 +14,7 @@ const DISABLE_AUTO_RELOAD = !!process.env.DISABLE_AUTO_RELOAD
 
 // eslint-disable-next-line
 bot.on('scan', function(qrcode, status) {
+  signale.info(`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrcode)}`)
   qrTerm.generate(qrcode, { small: true })
 })
 
